@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ProAgil.WebApi.Data;
+using ProAgil.Repository;
 
 namespace ProAgil.WebApi
 {
@@ -20,10 +20,10 @@ namespace ProAgil.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(
+            services.AddDbContext<ProAgilContext>(
                 options => options.UseMySql(Configuration.GetConnectionString("MySqlConnection"))
             );
-            
+            services.AddScoped<IProAgilRepository,ProAgilRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
         }
@@ -43,6 +43,7 @@ namespace ProAgil.WebApi
 
             app.UseHttpsRedirection();
             app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
