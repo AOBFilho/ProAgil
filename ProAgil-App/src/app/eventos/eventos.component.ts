@@ -70,7 +70,7 @@ export class EventosComponent implements OnInit {
         this.eventos = _evento;
         console.log(_evento)
       },
-      error => {console.log(error)}
+      error => console.log(error)
     )
   }
     

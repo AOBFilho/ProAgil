@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProAgil.Repository;
+using ProAgil.WebApi.Helpers;
 
 namespace ProAgil.WebApi
 {
@@ -24,6 +26,14 @@ namespace ProAgil.WebApi
                 options => options.UseMySql(Configuration.GetConnectionString("MySqlConnection"))
             );
             services.AddScoped<IProAgilRepository,ProAgilRepository>();
+            
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AutoMappingProfiles());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
         }
