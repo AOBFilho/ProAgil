@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,7 +11,7 @@ namespace ProAgil.WebApi.Dtos
         [Required(ErrorMessage="O campo {0} é de preenchimento obrigatório")]
         [StringLength(500,MinimumLength=2,ErrorMessage="O campo {0} deve possuir no mínimo 2 caractérie e no máximo 500 caractéries")]
         public string Local { get; set; }
-        public string DataEvento { get; set; }
+        public DateTime DataEvento { get; set; }
         
         [Required(ErrorMessage="O campo {0} é obrigatório")]
         public string Tema { get; set; }

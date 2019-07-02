@@ -1,11 +1,17 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { EventoService } from '../_services/evento.service';
 import { Evento } from '../_models/Evento';
 import { FormGroup, Validators, FormBuilder, AbstractControl } from '@angular/forms';
 import { defineLocale } from 'ngx-bootstrap/chronos';
-import { deLocale } from 'ngx-bootstrap/locale';
+import { ptBrLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
-defineLocale('pt-br', deLocale); 
+import { ToastrService } from 'ngx-toastr';
+import { FormatDateTimePipe } from '../_helps/FormatDateTime.pipe';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+
+registerLocaleData(localePt);
+defineLocale('pt-br', ptBrLocale); 
 
 @Component({
   selector: 'app-eventos',
@@ -14,7 +20,8 @@ defineLocale('pt-br', deLocale);
 })
 
 export class EventosComponent implements OnInit {
-  
+  titulo = 'Eventos';
+  datePipe = new FormatDateTimePipe('pt-br');
   eventos: Evento[];
   evento: Evento;
   modoSalva: string = '';
@@ -24,10 +31,12 @@ export class EventosComponent implements OnInit {
   registerForm: FormGroup;
   _eventosFiltrados: Evento[];
   _filtroLista: string;
+  headerTextDelete: string = '';
   
   constructor(private eventoService: EventoService,
               private formBuilder: FormBuilder,
-              private localeService: BsLocaleService  ) {
+              private localeService: BsLocaleService,
+              private toastr: ToastrService) {
     this.localeService.use('pt-br');
   }
     
@@ -68,9 +77,10 @@ export class EventosComponent implements OnInit {
     this.eventoService.getAllEvento().subscribe(
       (_evento: Evento[]) => {
         this.eventos = _evento;
-        console.log(_evento)
       },
-      error => console.log(error)
+      error => {
+        this.toastr.error(`Ocorreu um erro ao carregar eventos: ${error}`);
+      }
     )
   }
     
@@ -85,8 +95,11 @@ export class EventosComponent implements OnInit {
         () => {
           template.hide();
           this.getEventos();
+          this.toastr.success('Evento salvo com sucesso!');
         },
-        error => console.log(error)
+        error => {
+          this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error}`);
+        }
       )
     }
   }
@@ -111,9 +124,11 @@ export class EventosComponent implements OnInit {
     this.openModal(template);
     this.evento = evento;
     this.registerForm.patchValue(evento);
+    this.registerForm.patchValue({dataEvento: this.datePipe.transform(this.evento.dataEvento)});
   }
   
   excluirEvento(evento: Evento,confirm : any){
+    this.headerTextDelete = evento.tema;
     confirm.show();
     this.evento = evento;
   }
@@ -123,9 +138,10 @@ export class EventosComponent implements OnInit {
       () => {
         confirm.hide();
         this.getEventos();
+        this.toastr.success('Evento excluido com sucesso!');
       },
       (error) => {
-        console.log(error);
+        this.toastr.error(`Ocorreu um erro ao tentar excluir o evento: ${error}`);
       }
     );
   }
@@ -170,6 +186,5 @@ export class EventosComponent implements OnInit {
   isFormControlEmailInvalid(nomeControl: string): boolean{
     return this.getControl(nomeControl).hasError('email');
   }
-  
 }
         
