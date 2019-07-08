@@ -35,4 +35,11 @@ export class EventoService {
   deleteEvento(id: number){
     return this.http.delete(`${this.urlBase}/${id}`);
   }
+
+  uploadImage(file: File, name: string){
+    var fileToUpload = <File>file[0];
+    var formData = new FormData();
+    formData.append('file',fileToUpload,`${name}.jpg`)
+    return this.http.post(`${this.urlBase}/uploadImage`,formData);
+  }
 }

@@ -36,7 +36,7 @@
   <tr *ngFor="let evento of eventosFiltrados">
     <td>
       <img *ngIf="mostrarImagem"
-      src="https://localhost:5001/img/{{evento.imagemURL}}"
+      src="https://localhost:5001/Resources/images/{{evento.imagemURL}}"
       [style.width.px]="imagemAltura"
       [style.margin.px]="imagemMargem">
     </td>
@@ -115,6 +115,7 @@ role="dialog" aria-labelledby="dialog-sizes-name1">
             <input 
             class="form-control is-invalid" 
             bsDatepicker
+            value="{{dataEvento | FormatDateTime}}" [(ngModel)]="dataEvento"
             formControlName="dataEvento"
             [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY HH:mm' }"
             [ngClass]="{'is-invalid': isFormControlInvalid('dataEvento')}">
@@ -163,8 +164,17 @@ role="dialog" aria-labelledby="dialog-sizes-name1">
         </div>
         <div class="form-group col-md-8">
           <label>Imagem</label>
-          <input type="text" class="form-control is-invalid" formControlName="imagemURL"
-          [ngClass]="{'is-invalid': isFormControlInvalid('imagemURL')}">
+          <table>
+            <tr>
+              <td>
+                <button class="btn btn-success" (click)="file.click()">Enviar Imagem</button>
+                <input type="file" #file class="form-control is-invalid"
+                formControlName="imagemURL" (change)="onFileChange($event)"
+                [ngClass]="{'is-invalid': isFormControlInvalid('imagemURL')}"
+                style="display: none">
+              </td>
+            </tr>
+          </table>
           <div class="invalid-feedback" 
           *ngIf="isFormControlInvalid('imagemURL') && isFormControlRequired('imagemURL')">
           Imagem é obrigatório

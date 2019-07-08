@@ -43,7 +43,7 @@ import { TituloComponent } from './_shared/titulo/titulo.component';
       AppRoutingModule,
       HttpClientModule,
       FormsModule,
-      ReactiveFormsModule
+      ReactiveFormsModule.withConfig({warnOnNgModelWithFormControl: 'never'})
    ],
    providers: [
       EventoService

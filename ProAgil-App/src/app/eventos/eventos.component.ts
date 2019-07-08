@@ -20,8 +20,8 @@ defineLocale('pt-br', ptBrLocale);
 })
 
 export class EventosComponent implements OnInit {
+  dataEvento: any;
   titulo = 'Eventos';
-  datePipe = new FormatDateTimePipe('pt-br');
   eventos: Evento[];
   evento: Evento;
   modoSalva: string = '';
@@ -32,6 +32,7 @@ export class EventosComponent implements OnInit {
   _eventosFiltrados: Evento[];
   _filtroLista: string;
   headerTextDelete: string = '';
+  file: File;
   
   constructor(private eventoService: EventoService,
               private formBuilder: FormBuilder,
@@ -79,7 +80,8 @@ export class EventosComponent implements OnInit {
         this.eventos = _evento;
       },
       error => {
-        this.toastr.error(`Ocorreu um erro ao carregar eventos: ${error}`);
+        console.log(error);
+        this.toastr.error(`Ocorreu um erro ao carregar eventos: ${error.error}`);
       }
     )
   }
@@ -90,17 +92,25 @@ export class EventosComponent implements OnInit {
 
   salvarAlteracao(template: any){
     if (this.registerForm.valid){
-    
       this.pesistirEvento().subscribe(
-        () => {
-          template.hide();
-          this.getEventos();
-          this.toastr.success('Evento salvo com sucesso!');
+        (evento: Evento) => {
+          
+          this.eventoService.uploadImage(this.file,evento.id.toString()).subscribe(
+            () => {
+              template.hide();
+              this.getEventos();
+              this.toastr.success('Evento salvo com sucesso!');
+            },
+            error => {
+              this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error.error}`);
+            }
+          )
         },
         error => {
-          this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error}`);
+          this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error.error}`);
         }
       )
+
     }
   }
   
@@ -120,11 +130,12 @@ export class EventosComponent implements OnInit {
   }
   
   editarEvento(evento:Evento, template: any){
+    var datePipe = new FormatDateTimePipe('pt-br')
     this.modoSalva = 'put';
     this.openModal(template);
-    this.evento = evento;
-    this.registerForm.patchValue(evento);
-    this.registerForm.patchValue({dataEvento: this.datePipe.transform(this.evento.dataEvento)});
+    this.evento = Object.assign({},evento);
+    this.evento.imagemURL = '';
+    this.registerForm.patchValue(this.evento);
   }
   
   excluirEvento(evento: Evento,confirm : any){
@@ -141,7 +152,7 @@ export class EventosComponent implements OnInit {
         this.toastr.success('Evento excluido com sucesso!');
       },
       (error) => {
-        this.toastr.error(`Ocorreu um erro ao tentar excluir o evento: ${error}`);
+        this.toastr.error(`Ocorreu um erro ao tentar excluir o evento: ${error.error}`);
       }
     );
   }
@@ -156,6 +167,12 @@ export class EventosComponent implements OnInit {
       qtdePessoas: ['',[Validators.required,Validators.max(120000)]],
       imagemURL: ['',Validators.required]
     });
+  }
+
+  onFileChange(event){
+    if (event.target.files && event.target.files.length){
+      this.file = event.target.files;
+    }
   }
   
   getControl(nomeControl: string) : AbstractControl{

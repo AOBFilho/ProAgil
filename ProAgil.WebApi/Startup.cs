@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.IO;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using ProAgil.Repository;
 using ProAgil.WebApi.Helpers;
@@ -45,8 +45,6 @@ namespace ProAgil.WebApi
                         {
                             //Set date configurations
                             options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
-   //                         options.SerializerSettings.Culture = new CultureInfo("pt-BR");
-   //                         options.SerializerSettings.DateFormatString = "dd/MM/yyyy HH:mm"; // month must be capital. otherwise it gives minutes.
                         });
 
             services.AddCors();
@@ -64,18 +62,14 @@ namespace ProAgil.WebApi
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();   
             }
-/*
-            var defaultCulture = new CultureInfo("pt-BR");
-            app.UseRequestLocalization(new RequestLocalizationOptions
-            {
-                DefaultRequestCulture = new RequestCulture(defaultCulture),
-                SupportedCultures = new List<CultureInfo> { defaultCulture },
-                SupportedUICultures = new List<CultureInfo> { defaultCulture }
-            });
- */          
+       
             app.UseHttpsRedirection();
             app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseStaticFiles();
+            app.UseStaticFiles( new StaticFileOptions(){
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),@"Resources")),
+                RequestPath = new PathString("/Resources")
+            });
             app.UseMvc();
         }
     }

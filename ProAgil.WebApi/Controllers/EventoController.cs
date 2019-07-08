@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -74,6 +76,30 @@ namespace ProAgil.WebApi.Controllers
             }
         }
 
+        [HttpPost("uploadImage")]
+        public async Task<IActionResult> UploadImage()
+        {
+            try{
+                var file = Request.Form.Files[0];
+                var folderName = Path.Combine("Resources","Images");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(),folderName);
+
+                if (file.Length > 0)
+                {
+                    var fileName = file.FileName;
+                    var fullPath = Path.Combine(pathToSave,fileName);
+                    using (var stream = new FileStream(fullPath,FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                }
+
+                return Ok();
+            } catch (System.Exception ex){
+                return StatusCode(StatusCodes.Status500InternalServerError,$"Ocorreu um erro ao fazer upload da imagem {ex}");
+            }
+            
+        }
 
         [HttpPost]
         public async Task<IActionResult> Post(EventoDto model)
@@ -104,7 +130,9 @@ namespace ProAgil.WebApi.Controllers
             {
                 var evento = await _repo.GetEventoAsyncById(eventoId, false);
                 if (evento == null) return NotFound();
+                
                 _mapper.Map(model,evento);
+                evento.ImagemURL = $"{evento.Id.ToString()}.jpg";
                 _repo.Update(evento);
                 if (await _repo.SaveChangesAsync())
                 {
