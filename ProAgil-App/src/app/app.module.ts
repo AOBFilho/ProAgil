@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
 import { EventoService } from './_services/evento.service';
+import { AuthService } from './_services/auth.service';
  
 import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
@@ -20,6 +21,9 @@ import { ContatosComponent } from './contatos/contatos.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FormatDateTimePipe } from './_helps/FormatDateTime.pipe';
 import { TituloComponent } from './_shared/titulo/titulo.component';
+import { UserComponent } from './user/user.component';
+import { LoginComponent } from './user/login/login.component';
+import { RegistrationComponent } from './user/registration/registration.component';
 
 @NgModule({
    declarations: [
@@ -30,7 +34,10 @@ import { TituloComponent } from './_shared/titulo/titulo.component';
       ContatosComponent,
       DashboardComponent,
       TituloComponent,
-      FormatDateTimePipe
+      FormatDateTimePipe,
+      UserComponent,
+      LoginComponent,
+      RegistrationComponent
    ],
    imports: [
       BrowserModule,
@@ -46,7 +53,8 @@ import { TituloComponent } from './_shared/titulo/titulo.component';
       ReactiveFormsModule.withConfig({warnOnNgModelWithFormControl: 'never'})
    ],
    providers: [
-      EventoService
+      EventoService,
+      AuthService
    ],
    bootstrap: [
       AppComponent
