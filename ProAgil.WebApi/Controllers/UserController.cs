@@ -71,6 +71,10 @@ namespace ProAgil.WebApi.Controllers
             try
             {
                 var user = await _userManager.FindByNameAsync(userLogin.UserName);
+                if (user == null){
+                    return StatusCode(StatusCodes.Status404NotFound ,$"Usuário ou senha inválido!"); 
+                };
+
                 var result = await _signInManager.CheckPasswordSignInAsync(user,userLogin.Password,false);
                 if (result.Succeeded)
                 {

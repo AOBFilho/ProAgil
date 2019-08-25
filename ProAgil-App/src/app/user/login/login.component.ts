@@ -13,12 +13,12 @@ export class LoginComponent implements OnInit {
   titulo = 'Login';
   model: any = {};
 
-  constructor(private router: Router,
-              private authService: AuthService,
-              private toastrService: ToastrService) { }
+  constructor(public router: Router,
+              public authService: AuthService,
+              public toastrService: ToastrService) { }
 
   ngOnInit() {
-    if(localStorage.getItem('token') !== null){
+    if (localStorage.getItem('token') !== null) {
       this.router.navigate(['/dashboard']);
     }
   }
@@ -27,10 +27,14 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.model)
       .subscribe(
         () => {
-          this.router.navigate(['/dashboard']); 
+          this.router.navigate(['/dashboard']);
         },
         error => {
-          this.toastrService.error('Ocorre uma falha ao tentar efetuar o login!');
+          if (error.status === 404) {
+            this.toastrService.error(error.error);
+          } else {
+            this.toastrService.error('Ocorre uma falha ao tentar efetuar o login!');
+          }
         }
       );
   }

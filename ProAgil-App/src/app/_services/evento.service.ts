@@ -8,41 +8,38 @@ import { Evento } from '../_models/Evento';
 })
 export class EventoService {
 
-  urlBase : string = "https://localhost:5001/api/evento";
-  tokenHeader : HttpHeaders;
+  urlBase = 'https://localhost:5001/api/evento';
 
-  constructor(private http: HttpClient) { 
-    this.tokenHeader = new HttpHeaders({'Authorization': `Bearer ${localStorage.getItem('token')}` });
-  }
+  constructor(private http: HttpClient) {}
 
   getAllEvento(): Observable<Evento[]>  {
-    return this.http.get<Evento[]>(this.urlBase, {headers: this.tokenHeader});
+    return this.http.get<Evento[]>(this.urlBase);
   }
 
-  getByIdEvento(id: number): Observable<Evento>{
+  getByIdEvento(id: number): Observable<Evento> {
     return this.http.get<Evento>(`${this.urlBase}/${id}`);
   }
 
-  getByTemaEvento(tema: string): Observable<Evento[]>{
+  getByTemaEvento(tema: string): Observable<Evento[]> {
     return this.http.get<Evento[]>(`${this.urlBase}/getByTema/${tema}`);
   }
 
-  postEvento(evento: Evento){
-    return this.http.post(this.urlBase,evento,{headers: this.tokenHeader});
+  postEvento(evento: Evento) {
+    return this.http.post(this.urlBase, evento);
   }
 
-  putEvento(evento: Evento){
-    return this.http.put(`${this.urlBase}/${evento.id}`,evento);
+  putEvento(evento: Evento) {
+    return this.http.put(`${this.urlBase}/${evento.id}`, evento);
   }
 
-  deleteEvento(id: number){
+  deleteEvento(id: number) {
     return this.http.delete(`${this.urlBase}/${id}`);
   }
 
-  uploadImage(file: File, name: string){
-    var fileToUpload = <File>file[0];
-    var formData = new FormData();
-    formData.append('file',fileToUpload,`${name}.jpg`)
-    return this.http.post(`${this.urlBase}/uploadImage`,formData, {headers: this.tokenHeader});
+  uploadImage(file: File, name: string) {
+    const fileToUpload = file[0] as File;
+    const formData = new FormData();
+    formData.append('file', fileToUpload, `${name}.jpg`);
+    return this.http.post(`${this.urlBase}/uploadImage`, formData);
   }
 }
