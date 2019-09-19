@@ -6,12 +6,11 @@ import { defineLocale } from 'ngx-bootstrap/chronos';
 import { ptBrLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { ToastrService } from 'ngx-toastr';
-import { FormatDateTimePipe } from '../_helps/FormatDateTime.pipe';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 
 registerLocaleData(localePt);
-defineLocale('pt-br', ptBrLocale); 
+defineLocale('pt-br', ptBrLocale);
 
 @Component({
   selector: 'app-eventos',
@@ -24,127 +23,126 @@ export class EventosComponent implements OnInit {
   titulo = 'Eventos';
   eventos: Evento[];
   evento: Evento;
-  modoSalva: string = '';
+  modoSalva = '';
   imagemAltura = 50;
   imagemMargem = 2;
   mostrarImagem = false;
   registerForm: FormGroup;
   _eventosFiltrados: Evento[];
   _filtroLista: string;
-  headerTextDelete: string = '';
+  headerTextDelete = '';
   file: File;
-  
+  dataAtual: string;
+
   constructor(private eventoService: EventoService,
               private formBuilder: FormBuilder,
               private localeService: BsLocaleService,
               private toastr: ToastrService) {
     this.localeService.use('pt-br');
   }
-    
-    
-  get filtroLista():string {
+
+  get filtroLista(): string {
     return this._filtroLista;
   }
 
-  get eventosFiltrados(): Evento[]{
-    return this._eventosFiltrados ? this._eventosFiltrados : this.eventos ;
-  }
-  
   set filtroLista(value: string) {
     this._filtroLista = value;
-    this.eventosFiltrados = this.filtroLista ? this.filtrarEvento(this.filtroLista) : this.eventos; 
+    this.eventosFiltrados = this.filtroLista ? this.filtrarEvento(this.filtroLista) : this.eventos;
   }
-  
-  set eventosFiltrados(value: Evento[]){
+
+  get eventosFiltrados(): Evento[] {
+    return this._eventosFiltrados ? this._eventosFiltrados : this.eventos ;
+  }
+
+  set eventosFiltrados(value: Evento[]) {
     this._eventosFiltrados = value;
   }
-  
+
   ngOnInit() {
     this.validation();
+    this.dataAtual = new Date().getMilliseconds().toString();
     this.getEventos();
   }
-  
-  openModal(template: any){
+
+  openModal(template: any) {
     this.registerForm.reset();
     template.show();
   }
-  
+
   filtrarEvento(filtroLista: string): Evento[] {
     filtroLista = filtroLista.toLocaleLowerCase();
     return this.eventos.filter(evento => evento.tema.toLocaleLowerCase().indexOf(filtroLista) !== -1);
   }
-  
-  getEventos(){
+
+  getEventos() {
     this.eventoService.getAllEvento().subscribe(
-      (_evento: Evento[]) => {
-        this.eventos = _evento;
+      (events: Evento[]) => {
+        this.eventos = events;
       },
       error => {
         console.log(error);
         this.toastr.error(`Ocorreu um erro ao carregar eventos: ${error.error}`);
       }
-    )
+    );
   }
-    
-  alternarImagem(){
+
+  alternarImagem() {
     this.mostrarImagem = !this.mostrarImagem;
   }
 
-  salvarAlteracao(template: any){
-    if (this.registerForm.valid){
+  salvarAlteracao(template: any) {
+    if (this.registerForm.valid) {
       this.pesistirEvento().subscribe(
         (evento: Evento) => {
-          
-          this.eventoService.uploadImage(this.file,evento.id.toString()).subscribe(
+          this.eventoService.uploadImage(this.file, evento.id.toString()).subscribe(
             () => {
               template.hide();
+              this.dataAtual = new Date().getMilliseconds().toString();
               this.getEventos();
               this.toastr.success('Evento salvo com sucesso!');
             },
             error => {
               this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error.error}`);
             }
-          )
+          );
         },
         error => {
           this.toastr.error(`Ocorreu um erro ao tentar salvar evento: ${error.error}`);
         }
-      )
-
+      );
     }
   }
-  
+
   pesistirEvento() {
-    if (this.modoSalva === 'put'){
-      this.evento = Object.assign({id: this.evento.id},this.registerForm.value);
+    if (this.modoSalva === 'put') {
+      this.evento = Object.assign({id: this.evento.id}, this.registerForm.value);
       return this.eventoService.putEvento(this.evento);
-    } else if (this.modoSalva === 'post'){
-      this.evento = Object.assign({},this.registerForm.value);
+    } else if (this.modoSalva === 'post') {
+      this.evento = Object.assign({}, this.registerForm.value);
       return this.eventoService.postEvento(this.evento);
     }
   }
-  
-  novoEvento(template: any){
+
+  novoEvento(template: any) {
     this.modoSalva = 'post';
     this.openModal(template);
   }
-  
-  editarEvento(evento:Evento, template: any){
-    var datePipe = new FormatDateTimePipe('pt-br')
+
+  editarEvento(evento: Evento, template: any) {
     this.modoSalva = 'put';
     this.openModal(template);
-    this.evento = Object.assign({},evento);
+    this.evento = Object.assign({}, evento);
     this.evento.imagemURL = '';
     this.registerForm.patchValue(this.evento);
   }
-  
-  excluirEvento(evento: Evento,confirm : any){
+
+  excluirEvento(evento: Evento, confirm: any) {
     this.headerTextDelete = evento.tema;
     confirm.show();
     this.evento = evento;
   }
-  
-  confirmaExclusao(confirm : any){
+
+  confirmaExclusao(confirm: any) {
     this.eventoService.deleteEvento(this.evento.id).subscribe(
       () => {
         confirm.hide();
@@ -156,52 +154,51 @@ export class EventosComponent implements OnInit {
       }
     );
   }
-        
-  validation(){
+
+  validation() {
     this.registerForm = this.formBuilder.group({
-      tema: ['',[Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
-      local: ['',Validators.required],
-      dataEvento: ['',Validators.required],
-      telefone: ['',Validators.required],
-      email: ['',[Validators.required,Validators.email]],
-      qtdePessoas: ['',[Validators.required,Validators.max(120000)]],
-      imagemURL: ['',Validators.required]
+      tema: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
+      local: ['', Validators.required],
+      dataEvento: ['', Validators.required],
+      telefone: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      qtdePessoas: ['', [Validators.required, Validators.max(120000)]],
+      imagemURL: ['', Validators.required]
     });
   }
 
-  onFileChange(event){
-    if (event.target.files && event.target.files.length){
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
       this.file = event.target.files;
     }
   }
-  
-  getControl(nomeControl: string) : AbstractControl{
+
+  getControl(nomeControl: string): AbstractControl {
     return this.registerForm.get(nomeControl);
   }
-  
-  isFormControlInvalid(nomeControl: string): boolean{
-    var control = this.getControl(nomeControl); 
-    return control.invalid && (control.dirty || control.touched); 
+
+  isFormControlInvalid(nomeControl: string): boolean {
+    const control = this.getControl(nomeControl);
+    return control.invalid && (control.dirty || control.touched);
   }
-  
-  isFormControlRequired(nomeControl: string): boolean{
+
+  isFormControlRequired(nomeControl: string): boolean {
     return this.getControl(nomeControl).hasError('required');
   }
-  
-  isFormControlMinLength(nomeControl: string): boolean{
+
+  isFormControlMinLength(nomeControl: string): boolean {
     return this.getControl(nomeControl).hasError('minlength');
   }
-  
-  isFormControlMaxLength(nomeControl: string): boolean{
+
+  isFormControlMaxLength(nomeControl: string): boolean {
     return this.getControl(nomeControl).hasError('maxlength');
   }
-  
-  isFormControlMax(nomeControl: string): boolean{
+
+  isFormControlMax(nomeControl: string): boolean {
     return this.getControl(nomeControl).hasError('max');
   }
-  
-  isFormControlEmailInvalid(nomeControl: string): boolean{
+
+  isFormControlEmailInvalid(nomeControl: string): boolean {
     return this.getControl(nomeControl).hasError('email');
   }
 }
-        

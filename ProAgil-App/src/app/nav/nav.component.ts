@@ -17,19 +17,19 @@ export class NavComponent implements OnInit {
   ngOnInit() {
   }
 
-  loggedIn(){
+  loggedIn() {
     return this.authService.loggedIn();
   }
 
-  entrar(){
+  entrar() {
     this.route.navigate(['/user/login']);
   }
 
-  getUserName(){
-    return this.authService.decodedToken.unique_name;
+  getUserName() {
+    return sessionStorage.getItem('username');
   }
 
-  logout(){
+  logout() {
     localStorage.removeItem('token');
     this.toastr.show('Você não está mais logado!');
     this.route.navigate(['/user/login']);
