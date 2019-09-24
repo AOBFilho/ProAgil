@@ -12,10 +12,9 @@ export class NavComponent implements OnInit {
 
   constructor(private route: Router,
               private toastr: ToastrService,
-              private authService: AuthService) { }
+              private authService: AuthService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   loggedIn() {
     return this.authService.loggedIn();
@@ -34,5 +33,10 @@ export class NavComponent implements OnInit {
     this.toastr.show('Você não está mais logado!');
     this.route.navigate(['/user/login']);
   }
+
+  isLogginPage() {
+    return this.route.url === '/user/login';
+  }
+
 
 }
